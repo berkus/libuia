@@ -12,6 +12,7 @@ set(comm_SOURCES
     comm/socket.cpp
     comm/udp_socket.cpp
     comm/socket_endpoint.cpp
+    comm/packet_receiver.cpp
     )
 
 add_library(uia STATIC

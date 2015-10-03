@@ -2,7 +2,7 @@
 #include "arsenal/logging.h"
 #include "arsenal/algorithm.h"
 #include "arsenal/subrange.h"
-#include "comm/packet_receiver.h" // FIXME
+#include "uia/comm/packet_receiver.h" // FIXME
 #include "sss/framing/stream_protocol.h"
 
 using namespace std;
