@@ -8,11 +8,10 @@
 //
 #pragma once
 
+#include "sss/forward_ptrs.h"
+
 namespace uia {
 namespace comm {
-
-class socket;
-class packet_receiver;
 
 /**
  * Interface used by socket layer to work with the host state.
@@ -22,8 +21,8 @@ class socket_host_interface
 {
 public:
     // Interface used by socket to register itself on the host.
-    virtual void activate_socket(std::weak_ptr<socket>) = 0;
-    virtual void deactivate_socket(std::weak_ptr<socket>) = 0;
+    virtual void activate_socket(socket_wptr) = 0;
+    virtual void deactivate_socket(socket_wptr) = 0;
 
     // Interface to bind and lookup receivers based on packet magic value.
     // bind_receiver(magic::hello, kex_responder)
