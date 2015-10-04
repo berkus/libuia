@@ -62,10 +62,10 @@ socket::receive(asio::const_buffer msg, socket_endpoint const& src)
     if (buffer_size(msg) >= sss::MIN_PACKET_SIZE) {
         // logger::file_dump(msg, "received raw socket packet");
 
-        string magic = as_string(msg, 0, 8);
+        const uint64_t magic = *asio::buffer_cast<const uint64_t*>(msg);
 
         if (auto rcvr = host_interface_->receiver_for(magic).lock()) {
-            return rcvr->receive(msg, src); // @fixme Lose magic part?
+            return rcvr->receive(msg, src);
         }
     }
     // Ignore too small or unrecognized packets.

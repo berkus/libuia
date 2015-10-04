@@ -30,10 +30,10 @@ public:
     // bind_receiver(magic::initiate, kex_responder)
     // bind_receiver(magic::cookie, kex_initiator)
     // bind_receiver(magic::message, message_receiver)
-    virtual void bind_receiver(std::string, std::weak_ptr<packet_receiver>) = 0;
-    virtual void unbind_receiver(std::string) = 0;
-    virtual bool has_receiver_for(std::string) = 0;
-    virtual std::weak_ptr<packet_receiver> receiver_for(std::string) = 0;
+    virtual void bind_receiver(uint64_t, packet_receiver_wptr) = 0;
+    virtual void unbind_receiver(uint64_t) = 0;
+    virtual bool has_receiver_for(uint64_t) = 0;
+    virtual packet_receiver_wptr receiver_for(uint64_t) = 0;
 };
 
 } // comm namespace

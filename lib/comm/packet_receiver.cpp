@@ -12,14 +12,14 @@ namespace comm {
 //=================================================================================================
 
 void
-packet_receiver::bind(string magic)
+packet_receiver::bind(uint64_t magic)
 {
-    assert(!is_bound());
-    assert(magic.size() == 8);
+    // assert(!is_bound()); @todo Make receiver possible to bind to multiple magic values...
+    assert(magic != 0);
     assert(!host_interface_->has_receiver_for(magic));
 
     magic_ = magic;
-    logger::debug() << "Link receiver " << this << " binds for magic " << byte_array(magic_);
+    logger::debug() << "Link receiver " << this << " binds for magic " << hex << magic_;
     host_interface_->bind_receiver(magic_, shared_from_this());
 }
 
@@ -28,9 +28,10 @@ packet_receiver::unbind()
 {
     if (is_bound())
     {
-        logger::debug() << "Link receiver " << this << " unbinds magic " << byte_array(magic_);
+        logger::debug() << "Link receiver " << this << " unbinds magic " << hex << magic_;
         host_interface_->unbind_receiver(magic_);
-        magic_.clear();
+        // make it possible to unbind from multiple magic values too...
+        magic_ = 0;
     }
 }
 
