@@ -9,6 +9,7 @@
 #include "uia/peer_identity.h"
 #include "arsenal/logging.h"
 #include "arsenal/settings_provider.h"
+#include "sodiumpp/sodiumpp.h"
 
 using namespace std;
 
@@ -18,13 +19,13 @@ namespace uia {
 // identity
 //=================================================================================================
 
-peer_identity::peer_identity(byte_array const& id)
-    : id_(id.as_string())
+peer_identity::peer_identity(string const& id)
+    : id_(id)
 {
 }
 
-peer_identity::peer_identity(byte_array const& id, byte_array const& key)
-    : id_(id.as_string())
+peer_identity::peer_identity(string const& id, string const& key)
+    : id_(id)
 {
     if (!set_key(key)) {
         throw bad_key();
@@ -38,67 +39,42 @@ peer_identity::clear_key()
 }
 
 bool
-peer_identity::set_key(byte_array const& key)
+peer_identity::set_key(string const& key)
 {
     clear_key();
 
-    private_key_ = key.as_string();
+    private_key_ = key;
 
     // Verify that the supplied key actually matches the ID we have.
     // *** This is a crucial step for security! ***
-    // byte_array key_id = key_->id();
-    // key_id[0] = (key_id[0] & 7) | (ksch << 3); // replace top 5 bits of ID with scheme used
-
+    string test = "this is a key test";
+    // @todo Verify by encrypting with public key and then decrypting with secret key
     // if (key_id != id_)
     // {
     //     clear_key();
     //     logger::warning() << "Attempt to set mismatching identity key!";
-    return false;
+    //     return false;
     // }
 
-    // return true;
+    return true;
 }
 
 peer_identity
 peer_identity::generate()
 {
-    // shared_ptr<crypto::sign_key> key{nullptr};
-    // switch (sch) {
-    //     case dsa160:
-    //         logger::debug() << "Generating new DSA160 sign key";
-    //         key = make_shared<crypto::dsa160_key>(bits);
-    //         break;
-    //     case rsa160:
-    //         logger::debug() << "Generating new RSA160 sign key";
-    //         key = make_shared<crypto::rsa160_key>(bits);
-    //         break;
-    //     default:
-    //         logger::fatal() << "Unsupported signing scheme " << sch;
-    // }
-
-    // byte_array id = key->id();
-    // id[0] = (id[0] & 7) | (sch << 3); // replace top 5 bits of ID with scheme used
-    // logger::debug() << "Generated key id " << id;
-
-    // identity ident(id);
-    // ident.key_ = key;
-
-    return peer_identity(byte_array("blablab"));
+    sodiumpp::secret_key k;
+    return peer_identity(k.pk.get(), k.get());
 }
 
-byte_array
+string
 peer_identity::public_key() const
 {
-    if (id_.empty())
-        return byte_array();
     return id_;
 }
 
-byte_array
+string
 peer_identity::secret_key() const
 {
-    if (private_key_.empty())
-        return byte_array();
     return private_key_;
 }
 
@@ -131,7 +107,7 @@ identity_host_state::init_identity(settings_provider* settings)
         return; // Already initialized.
 
     if (!settings) {
-        host_identity(); // No persistence available.
+        host_identity_ = peer_identity::generate(); // No persistence available.
         return;
     }
 
@@ -140,8 +116,8 @@ identity_host_state::init_identity(settings_provider* settings)
     byte_array key = settings->get_byte_array("key");
 
     if (!id.is_empty() and !key.is_empty()) {
-        host_identity_.set_id(id);
-        if (host_identity_.set_key(key) and host_identity_.has_private_key())
+        host_identity_.set_id(id.as_string());
+        if (host_identity_.set_key(key.as_string()) and host_identity_.has_private_key())
             return; // Success
     }
 
@@ -151,8 +127,8 @@ identity_host_state::init_identity(settings_provider* settings)
     host_identity_ = peer_identity::generate();
 
     // Save it in our host settings
-    settings->set("id", host_identity_.id().as_vector());
-    settings->set("key", host_identity_.secret_key().as_vector());
+    settings->set("id", host_identity_.public_key());
+    settings->set("key", host_identity_.secret_key());
     settings->sync();
 }
 

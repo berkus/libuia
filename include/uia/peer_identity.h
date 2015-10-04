@@ -9,11 +9,8 @@
 #pragma once
 
 #include <stdexcept>
-// #include <boost/asio.hpp> // @todo Include only header for boost::asio::ip::address
-// #include "arsenal/byte_array.h"
 #include "arsenal/proquint.h"
 #include "comm/socket_endpoint.h"
-// #include "krypto/sign_key.h"
 
 class settings_provider;
 
@@ -57,14 +54,15 @@ public:
      * Create an identity with a given binary identifier.
      * @param id the binary identifier.
      */
-    peer_identity(byte_array const& id);
+    peer_identity(std::string const& id);
 
+    struct proquint_tag {};
     /**
      * Create an identity with a given proquint representation of binary identifier.
      * @param proquint the binary identifier in proquint text encoding.
      */
-    inline peer_identity(std::string proquint)
-        : peer_identity(byte_array(encode::from_proquint(proquint)))
+    inline peer_identity(std::string proquint, proquint_tag)
+        : peer_identity(encode::from_proquint(proquint))
     {
     }
 
@@ -74,7 +72,7 @@ public:
      * @param id the binary identifier.
      * @param key the binary representation of the key associated with the identifier.
      */
-    peer_identity(byte_array const& id, byte_array const& key);
+    peer_identity(std::string const& id, std::string const& key);
 
     /**
      * Generate a new cryptographic identity with unique private key, using reasonable
@@ -87,16 +85,16 @@ public:
      * Get this identity's short binary EID.
      * @return the binary identifier as a byte_array.
      */
-    byte_array id() const { return id_; }
+    std::string id() const { return id_; }
 
     /**
      * Set the identity's short binary EID.
      * Clears any associated key information.
      * @param id the binary identifier.
      */
-    inline void set_id(byte_array const& id)
+    inline void set_id(std::string const& id)
     {
-        id_ = id.as_string();
+        id_ = id;
         clear_key();
     }
 
@@ -122,15 +120,15 @@ public:
 
     /**
      * Get this identity's binary-encoded public key.
-     * @return the key serialized into a byte_array.
+     * @return the binary key representation.
      */
-    byte_array public_key() const;
+    std::string public_key() const;
 
     /**
      * Get this identity's binary-encoded public and private keys.
-     * @return the key serialized into a byte_array.
+     * @return the binary key representation.
      */
-    byte_array secret_key() const;
+    std::string secret_key() const;
 
     /**
      * Set the public or private key associated with this identity.
@@ -139,10 +137,11 @@ public:
      * @return true if the encoded key was recognized, valid,
      *     and the correct key for this identifier.
      */
-    bool set_key(byte_array const& key);
+    bool set_key(std::string const& key);
 
     void clear_key();
 
+    // Return proquint-encoded public ID
     inline std::string to_string() const { return encode::to_proquint(id_); }
 };
 
@@ -219,7 +218,7 @@ operator>>(flurry::iarchive& ia, uia::peer_identity& id)
 {
     byte_array i;
     ia >> i;
-    id = i;
+    id = i.as_string();
     return ia;
 }
 
