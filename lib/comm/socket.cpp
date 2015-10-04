@@ -40,14 +40,6 @@ socket::set_active(bool active)
     }
 }
 
-// @todo Use boost::string_ref or std::experimental::string_view for MOST of the stuff
-// that handles refs into constantly allocated strings. Need to limit the scope somehow though.
-string
-as_string(boost::asio::const_buffer value, size_t start, size_t size)
-{
-    return string(asio::buffer_cast<char const*>(value) + start, size);
-}
-
 /**
  * Now the curvecp packets are impassable blobs of encrypted data.
  * The only magic we can use to differentiate is 8 byte header,
