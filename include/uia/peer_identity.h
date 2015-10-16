@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include "arsenal/proquint.h"
 #include "comm/socket_endpoint.h"
+#include "sodiumpp/sodiumpp.h"
 
 class settings_provider;
 
@@ -125,10 +126,11 @@ public:
     std::string public_key() const;
 
     /**
-     * Get this identity's binary-encoded public and private keys.
-     * @return the binary key representation.
+     * Get this identity's public and private keys.
+     * @return public and private key as single object.
+     * @throws bad_key if no private key set.
      */
-    std::string secret_key() const;
+    sodiumpp::secret_key secret_key() const;
 
     /**
      * Set the public or private key associated with this identity.

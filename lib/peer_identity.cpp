@@ -9,7 +9,6 @@
 #include "uia/peer_identity.h"
 #include "arsenal/logging.h"
 #include "arsenal/settings_provider.h"
-#include "sodiumpp/sodiumpp.h"
 
 using namespace std;
 
@@ -72,10 +71,10 @@ peer_identity::public_key() const
     return id_;
 }
 
-string
+sodiumpp::secret_key
 peer_identity::secret_key() const
 {
-    return private_key_;
+    return sodiumpp::secret_key(id_, private_key_);
 }
 
 //=================================================================================================
@@ -128,7 +127,7 @@ identity_host_state::init_identity(settings_provider* settings)
 
     // Save it in our host settings
     settings->set("id", host_identity_.public_key());
-    settings->set("key", host_identity_.secret_key());
+    settings->set("key", host_identity_.secret_key().get());
     settings->sync();
 }
 
