@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(libuia)
 
-if (NOT BUILD_IN_METTANODE)
+if (NOT BUILD_IN_UVVY)
     include(cmake/setup.cmake)
     include_directories(3rdparty/endian 3rdparty/arsenal/include)
     include_directories(3rdparty)
