@@ -15,7 +15,7 @@ using namespace std;
 using namespace uia;
 using namespace uia::comm;
 
-BOOST_AUTO_TEST_CASE(simple_affinity)
+struct EpsFixture
 {
     endpoint_set eps{
         endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1024),
@@ -27,8 +27,29 @@ BOOST_AUTO_TEST_CASE(simple_affinity)
         endpoint(boost::asio::ip::address::from_string("0.0.0.1"), 1024),
         endpoint(boost::asio::ip::address::from_string("::fff1"), 1024),
         endpoint(boost::asio::ip::address::from_string("::1"), 1024),
+        // own endpoint address
+        endpoint(boost::asio::ip::address::from_string("85.253.73.240"), 1024),
+        // presumable gateway addresses
+        endpoint(boost::asio::ip::address::from_string("85.253.73.1"), 1024),
+        endpoint(boost::asio::ip::address::from_string("85.253.73.2"), 1024),
+        endpoint(boost::asio::ip::address::from_string("85.253.73.255"), 1024),
+        endpoint(boost::asio::ip::address::from_string("85.253.73.254"), 1024),
     };
+};
+
+BOOST_FIXTURE_TEST_CASE(ipv4_simple_affinity, EpsFixture)
+{
     endpoint my_ep(boost::asio::ip::address::from_string("85.253.73.240"), 1024);
+
+    cout << "Endpoints near " << my_ep << endl;
+    for (auto x : eps.affinity_sorted_to(my_ep)) {
+        cout << x << endl;
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(ipv6_simple_affinity, EpsFixture)
+{
+    endpoint my_ep(boost::asio::ip::address::from_string("::1"), 1024);
 
     cout << "Endpoints near " << my_ep << endl;
     for (auto x : eps.affinity_sorted_to(my_ep)) {
@@ -38,4 +59,5 @@ BOOST_AUTO_TEST_CASE(simple_affinity)
 
 BOOST_AUTO_TEST_CASE(nat_affinity)
 {
+    // Advanced cases - give more affinity to nearby NAT gates
 }

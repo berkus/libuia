@@ -46,12 +46,17 @@ static int
 affinity(boost::asio::ip::address a, boost::asio::ip::address b)
 {
     if (a.is_v6() != b.is_v6()) {
+        // logger::debug() << "Addresses " << a << " and " << b << " are not comparable";
         return 0; // ipv4 and ipv6 do not match at all
     }
     if (a.is_v6()) {
-        return bit_affinity(a.to_v6().to_bytes(), b.to_v6().to_bytes());
+        auto aff = bit_affinity(a.to_v6().to_bytes(), b.to_v6().to_bytes());
+        // logger::debug() << "Addresses " << a << " and " << b << " have affinity " << aff;
+        return aff;
     } else {
-        return bit_affinity(a.to_v4().to_bytes(), b.to_v4().to_bytes());
+        auto aff = bit_affinity(a.to_v4().to_bytes(), b.to_v4().to_bytes());
+        // logger::debug() << "Addresses " << a << " and " << b << " have affinity " << aff;
+        return aff;
     }
 }
 
