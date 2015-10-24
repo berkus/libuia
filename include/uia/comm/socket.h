@@ -22,8 +22,7 @@ namespace comm {
 /**
  * Abstract base class for entity connecting two endpoints using some network.
  * Socket manages connection lifetime and maintains the connection status info.
- * For connected sockets there may be a number of channels established.
- * Socket orchestrates initiation of key exchanges (@fixme should it?).
+ * Socket dispatches received packets based on marker field in the packet.
  */
 class socket : public std::enable_shared_from_this<socket>
 {
@@ -38,7 +37,7 @@ class socket : public std::enable_shared_from_this<socket>
     bool active_{false};
 
 public:
-    /// sss expresses current socket status as one of three states:
+    /// uia expresses current socket status as one of three states:
     enum class status
     {
         down,    ///< Definitely appears to be down.
@@ -73,7 +72,7 @@ public:
      * @param  ep Endpoint on the local machine to bind the socket to.
      * @return    true if bind successfull, false otherwise.
      */
-    virtual bool bind(endpoint const& ep) = 0;
+    virtual bool bind(endpoint ep) = 0;
 
     /**
      * Unbind and close the underlying socket.
@@ -87,7 +86,7 @@ public:
      * @param size the packet size.
      * @return true if send was successful.
      */
-    virtual bool send(endpoint const& ep, char const* data, size_t size) = 0;
+    virtual bool send(endpoint ep, char const* data, size_t size) = 0;
 
     /**
      * Send a packet on this socket.
@@ -96,7 +95,7 @@ public:
      * @param msg the packet data.
      * @return true if send was successful.
      */
-    inline bool send(endpoint const& ep, byte_array const& msg)
+    inline bool send(endpoint ep, byte_array const& msg)
     {
         return send(ep, msg.const_data(), msg.size());
     }

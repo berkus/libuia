@@ -3,7 +3,7 @@
 #include "arsenal/algorithm.h"
 #include "arsenal/subrange.h"
 #include "uia/comm/packet_receiver.h" // FIXME
-#include "sss/framing/stream_protocol.h"
+#include "uia/comm/socket_protocol.h"
 
 using namespace std;
 using namespace boost;
@@ -51,7 +51,7 @@ socket::set_active(bool active)
 void
 socket::receive(asio::const_buffer msg, socket_endpoint const& src)
 {
-    if (buffer_size(msg) >= sss::MIN_PACKET_SIZE) {
+    if (buffer_size(msg) >= uia::comm::MIN_PACKET_SIZE) {
         // logger::file_dump(msg, "received raw socket packet");
 
         const uint64_t magic = *asio::buffer_cast<const uint64_t*>(msg);

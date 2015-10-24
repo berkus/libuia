@@ -11,9 +11,8 @@
 #include <memory>
 #include <boost/asio.hpp>
 #include "uia/comm/socket.h"
-#include "sss/forward_ptrs.h"
-
-class settings_provider;
+#include "uia/forward_ptrs.h"
+#include "arsenal/settings_provider.h"
 
 namespace uia {
 namespace comm {
@@ -43,14 +42,14 @@ class udp_socket : public socket
     friend struct udp_request; // Access to receive() only.
 
 public:
-    udp_socket(sss::host_ptr host);
+    udp_socket(host_ptr host);
 
     /**
      * Bind this UDP socket to a port and activate it if successful.
      * @param  ep Local endpoint to bind to.
      * @return    true if bind successful and socket has been activated, false otherwise.
      */
-    bool bind(endpoint const& ep) override;
+    bool bind(endpoint ep) override;
     void unbind() override;
 
     /**
@@ -62,7 +61,7 @@ public:
      *              about the reception of the packet on the other side, if it was ever delivered
      *              or accepted.
      */
-    bool send(endpoint const& ep, char const* data, size_t size) override;
+    bool send(endpoint ep, char const* data, size_t size) override;
     using socket::send;
 
     /**
@@ -86,21 +85,23 @@ public:
 private:
     void prepare_async_receive();
     void udp_ready_read(std::shared_ptr<udp_request> request,
-        boost::system::error_code const& error, size_t bytes_transferred);
+                        boost::system::error_code const& error,
+                        size_t bytes_transferred);
     void handle_sent(endpoint const& ep,
-        boost::system::error_code const& error, size_t bytes_transferred);
+                     boost::system::error_code const& error,
+                     size_t bytes_transferred);
 };
 
 /**
  * Helper function to bind a passed in socket to a given ep and set the error string to
- * occured error if any.
- * @param  sock         UDP socket to open and bind.
+ * error message if any.
+ *
+ * @param  sock         Reference to UDP socket to open and bind.
  * @param  ep           Endpoint to bind to. Can be ipv4 or ipv6.
  * @param  error_string Output string to set if error occured.
  * @return              true if successful, false if any error occured. Error string is set then.
  */
-bool bind_socket(boost::asio::ip::udp::socket& sock,
-    endpoint const& ep, std::string& error_string);
+bool bind_socket(boost::asio::ip::udp::socket& sock, endpoint ep, std::string& error_string);
 
 } // comm namespace
 } // uia namespace

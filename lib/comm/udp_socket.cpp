@@ -1,7 +1,7 @@
 #include "uia/comm/udp_socket.h"
 #include "uia/comm/platform.h"
 #include "arsenal/logging.h"
-#include "sss/host.h" //for get_io_service() on host
+#include "uia/host.h" //for get_io_service() on host
 #include <memory>
 
 using namespace std;
@@ -18,7 +18,7 @@ namespace comm {
 //=================================================================================================
 
 bool
-bind_socket(ip::udp::socket& sock, endpoint const& ep, std::string& error_string)
+bind_socket(ip::udp::socket& sock, endpoint ep, std::string& error_string)
 {
     system::error_code ec;
     sock.open(ep.protocol(), ec);
@@ -69,7 +69,7 @@ udp_request::handle_request(system::error_code const& error, size_t bytes_transf
 {
     if (!error) {
         logger::debug() << "Received " << dec << bytes_transferred << " bytes via UDP from "
-                        << received_from_ << " on socket " << this;
+                        << received_from_ << " on socket " << socket_;
         received_buffer_.commit(bytes_transferred);
         socket_->receive(asio::buffer(received_buffer_.data()), received_from_);
     } else {
@@ -78,14 +78,14 @@ udp_request::handle_request(system::error_code const& error, size_t bytes_transf
     }
 }
 
-using shared_request = std::shared_ptr<udp_request>;
+using udp_request_ptr = std::shared_ptr<udp_request>;
 
 //=================================================================================================
 // udp_socket
 //=================================================================================================
 
-// @todo We only need io_service, so just pass that in?
-udp_socket::udp_socket(sss::host_ptr host)
+// @fixme We only need io_service, so just pass that in?
+udp_socket::udp_socket(uia::host_ptr host)
     : socket(host.get())
     , udp_socket_(host->get_io_service())
     , strand_(host->get_io_service())
@@ -115,7 +115,7 @@ udp_socket::prepare_async_receive()
 }
 
 void
-udp_socket::udp_ready_read(shared_request request,
+udp_socket::udp_ready_read(udp_request_ptr request,
                            system::error_code const& error,
                            size_t bytes_transferred)
 {
@@ -147,7 +147,7 @@ udp_socket::local_port()
 }
 
 bool
-udp_socket::bind(endpoint const& ep)
+udp_socket::bind(endpoint ep)
 {
     logger::debug() << "udp_socket bind on endpoint " << ep;
     if (!bind_socket(udp_socket_, ep, error_string_))
@@ -181,7 +181,7 @@ udp_socket::handle_sent(endpoint const& ep,
 
 // @todo manage memory being sent...
 bool
-udp_socket::send(endpoint const& ep, char const* data, size_t size)
+udp_socket::send(endpoint ep, char const* data, size_t size)
 {
     udp_socket_.async_send_to(buffer(data, size),
                               ep,

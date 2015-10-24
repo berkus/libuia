@@ -234,7 +234,7 @@ struct hash<uia::peer_identity> : public std::unary_function<uia::peer_identity,
 {
     inline size_t operator()(uia::peer_identity const& a) const noexcept
     {
-        return std::hash<byte_array>()(a.id());
+        return std::hash<std::string>()(a.id());
     }
 };
 

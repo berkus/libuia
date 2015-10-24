@@ -16,7 +16,6 @@
 // #include "sss/negotiation/kex_responder.h"
 
 using namespace std;
-using namespace sss;
 using namespace uia;
 
 BOOST_AUTO_TEST_CASE(receive_too_small_packet)

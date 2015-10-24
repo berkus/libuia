@@ -9,6 +9,7 @@
 #pragma once
 
 #include <memory>
+#include <boost/asio/buffer.hpp>
 
 class byte_array;
 
@@ -54,7 +55,7 @@ public:
      * @param msg Data packet.
      * @param src Origin endpoint.
      */
-    virtual void receive(boost::asio::const_buffer msg, uia::comm::socket_endpoint const& src) = 0;
+    virtual void receive(boost::asio::const_buffer msg, socket_endpoint src) = 0;
 };
 
 } // comm namespace

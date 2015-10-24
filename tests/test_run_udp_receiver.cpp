@@ -7,10 +7,10 @@
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "uia/comm/udp_socket.h"
-#include "sss/host.h"
+#include "uia/host.h"
 
 using namespace std;
-using namespace sss;
+using namespace uia;
 using namespace uia::comm;
 using namespace boost::asio;
 
@@ -19,7 +19,7 @@ main()
 {
     try {
         host_ptr host(host::create());
-        endpoint local_ep(ip::udp::v4(), stream_protocol::default_port);
+        endpoint local_ep(ip::udp::v4(), DEFAULT_PORT);
         udp_socket l(host);
         l.bind(local_ep);
         l.send(local_ep, "\0SSSohai!", 10);
