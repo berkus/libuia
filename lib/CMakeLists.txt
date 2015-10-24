@@ -15,7 +15,21 @@ set(comm_SOURCES
     comm/packet_receiver.cpp
     )
 
+set(kex_SOURCES
+    negotiation/channel_initiator.cpp
+    negotiation/initiator.cpp
+    negotiation/responder.cpp
+    negotiation/kex_host_state.cpp
+    )
+
 add_library(uia STATIC
+    host.cpp
     peer_identity.cpp
+    peer.cpp
+    channels/socket_channel.cpp
+    timer.cpp
+    asio_host_state.cpp
+    socket_host_state.cpp
     ${comm_SOURCES}
-    ${platform_SOURCES})
+    ${platform_SOURCES}
+    ${kex_SOURCES})
