@@ -46,9 +46,13 @@ namespace negotiation {
 //
 class initiator : public std::enable_shared_from_this<initiator>
 {
+    // This is what it's all happening for. Channel we'll create and hopefully return upon
+    // established connection via on_completed() signal.
+    socket_channel_ptr channel_;
+
     host_ptr host_;
     uia::comm::socket_endpoint target_; ///< Remote endpoint we're trying to contact.
-    uia::peer_identity remote_id_;      ///< Target's host id (empty if unspecified).
+    uia::peer_identity remote_id_;      ///< Target's host id.
     bool early_{true};                  ///< This initiator can still be canceled.
 
     /**
@@ -66,6 +70,10 @@ class initiator : public std::enable_shared_from_this<initiator>
 
     void retransmit(bool fail);
     void cookie_expired();
+    void create_channel(sodiumpp::secret_key local_short,
+                        sodiumpp::public_key remote_short,
+                        sodiumpp::public_key remote_long,
+                        uia::comm::socket_endpoint const& responder_ep);
     void done();
 
     // Key exchange state

@@ -84,6 +84,7 @@ protected:
                                         sodiumpp::public_key remote_short,
                                         sodiumpp::public_key remote_long,
                                         uia::comm::socket_endpoint const& initiator_ep) = 0;
+    friend class initiator;
 
 private:
     // Handlers for incoming kex packets

@@ -7,6 +7,7 @@
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "uia/negotiation/initiator.h"
+#include "uia/negotiation/responder.h"
 #include "arsenal/byte_array_wrap.h"
 #include "arsenal/algorithm.h"
 #include "arsenal/subrange.h"
@@ -117,14 +118,15 @@ initiator::cookie_expired()
 void
 initiator::done()
 {
+    assert(channel_);
+
     bool send_signal = (state_ != state::done);
     logger::debug() << "Key exchange completed with " << target_
                     << (send_signal ? " (signaling upper layer)" : "");
     state_ = state::done;
     cancel();
     if (send_signal) {
-        // auto chan = create_channel();
-        on_completed(shared_from_this(), nullptr/*chan*/);
+        on_completed(shared_from_this(), channel_);
     }
 }
 
@@ -140,14 +142,14 @@ initiator::cancel()
 void
 initiator::send_hello()
 {
-    logger::debug() << "Send hello to " << target_;
+    logger::debug() << "Send HELLO to " << target_;
 
     boxer<nonce64> seal(remote_id_.public_key(), short_term_secret_key, HELLO_NONCE_PREFIX);
+    auto box_contents = host_->host_identity().secret_key().pk.get() + string(32, '\0');
 
     uia::packets::hello_packet_header pkt;
     pkt.initiator_shortterm_public_key = as_array<32>(short_term_secret_key.pk.get());
-    pkt.box =
-        as_array<80>(seal.box(host_->host_identity().secret_key().pk.get() + string(32, '\0')));
+    pkt.box = as_array<80>(seal.box(box_contents));
     pkt.nonce = as_array<8>(seal.nonce_sequential());
 
     socket_send(target_, pkt);
@@ -178,8 +180,24 @@ initiator::got_cookie(boost::asio::const_buffer buf, uia::comm::socket_endpoint 
     minute_cookie_ = cookie_buf;
     minute_timer_.start();
 
+    // optimistically spawn a channel here and let client prepare some data
+    // to send in the initiate packet
+    create_channel(short_term_secret_key, server_short_term_public_key, remote_id_.public_key(), src);
 
     send_initiate(minute_cookie_, "");
+}
+
+void
+initiator::create_channel(sodiumpp::secret_key local_short,
+                          sodiumpp::public_key remote_short,
+                          sodiumpp::public_key remote_long,
+                          uia::comm::socket_endpoint const& responder_ep)
+{
+    channel_ = host_->channel_responder()->create_channel(local_short, remote_short, remote_long, responder_ep);
+
+    channel_->on_ready_transmit(); // up to 1 packet can be sent now
+    // but this is useless, because nobody has connected to the channel yet....
+    // so initiate packet is always empty for now...
 }
 
 void
@@ -197,10 +215,10 @@ initiator::send_initiate(std::string cookie, std::string payload)
     pkt.responder_cookie.nonce         = as_array<16>(subrange(cookie, 0, 16));
     pkt.responder_cookie.box           = as_array<80>(subrange(cookie, 16));
 
+    auto box_contents = host_->host_identity().secret_key().pk.get() + vouchSeal.nonce_sequential() + vouch
+                 + payload;
     boxer<nonce64> seal(server_short_term_public_key, short_term_secret_key, INITIATE_NONCE_PREFIX);
-    pkt.box =
-        seal.box(host_->host_identity().secret_key().pk.get() + vouchSeal.nonce_sequential() + vouch
-                 + payload);
+    pkt.box = seal.box(box_contents);
     // @todo Round payload size to next or second next multiple of 16..
     pkt.nonce = as_array<8>(seal.nonce_sequential());
 
