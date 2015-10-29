@@ -190,14 +190,14 @@ responder::got_initiate(boost::asio::const_buffer buf, uia::comm::socket_endpoin
 
     client_short_term_key = vouch;
 
-    // All is good, what's in the payload?
-    // @todo Pass payload to the framing layer.
-    // This means here we create channel, bind it and start parsing payload data
-    // - investigate what this means lifetime-wise.
     logger::debug() << "Responder VALIDATED initiate packet from " << src;
 
     // Channel needs two pairs of short-term keys and remote endpoint to operate
     auto chan = create_channel(short_term_key, client_short_term_key, client_long_term_key, src);
+
+    // All is good, what's in the payload?
+    // @todo Pass payload to the channel.
+    // chan->receive(buf, src);
 
     // string payload = subrange(msg, 96);
     // hexdump(payload);
