@@ -177,12 +177,12 @@ responder::got_initiate(boost::asio::const_buffer buf, uia::comm::socket_endpoin
     string msg = unseal.unbox(as_string(init.box));
 
     // Extract client long-term public key and check the vouch subpacket.
-    string clientLongTermKey = subrange(msg, 0, 32);
+    string client_long_term_key = subrange(msg, 0, 32);
 
     string vouchNonce = VOUCH_NONCE_PREFIX + string(subrange(msg, 32, 16));
 
     unboxer<recv_nonce> vouchUnseal(
-        clientLongTermKey, host_->host_identity().secret_key(), vouchNonce);
+        client_long_term_key, host_->host_identity().secret_key(), vouchNonce);
     string vouch = vouchUnseal.unbox(subrange(msg, 48, 48));
 
     if (vouch != as_string(init.initiator_shortterm_public_key))
@@ -197,7 +197,7 @@ responder::got_initiate(boost::asio::const_buffer buf, uia::comm::socket_endpoin
     logger::debug() << "Responder VALIDATED initiate packet from " << src;
 
     // Channel needs two pairs of short-term keys and remote endpoint to operate
-    auto chan = create_channel(short_term_key, client_short_term_key, clientLongTermKey, src);
+    auto chan = create_channel(short_term_key, client_short_term_key, client_long_term_key, src);
 
     // string payload = subrange(msg, 96);
     // hexdump(payload);
