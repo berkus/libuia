@@ -49,10 +49,13 @@ initiator::initiator(host_ptr host, peer_identity const& target_peer, comm::sock
     , target_(target)
     , remote_id_(target_peer)
     , retransmit_timer_(host.get())
+    , minute_timer_(host.get())
 {
     logger::debug() << "Creating kex initiator " << this;
 
     assert(target_ != uia::comm::endpoint());
+    retransmit_timer_.on_timeout.connect([this](bool fail) { retransmit(fail); });
+    minute_timer_.on_timeout.connect([this](bool fail) { cookie_expired(); });
 
     logger::debug() << "Long term responder pk "
                     << encode::to_proquint(remote_id_.public_key());
@@ -70,7 +73,6 @@ initiator::exchange_keys()
     logger::debug() << "Initiating key exchange connection to peer " << target_ << "/"
                     << remote_id_;
     host_->register_initiator(target_, shared_from_this());
-    retransmit_timer_.on_timeout.connect([this](bool fail) { retransmit(fail); });
     send_hello();
 }
 
@@ -81,6 +83,7 @@ initiator::retransmit(bool fail)
         logger::debug() << "Key exchange failed";
         state_ = state::done;
         retransmit_timer_.stop();
+        minute_timer_.stop();
         return on_completed(shared_from_this(), nullptr);
     }
 
@@ -98,6 +101,17 @@ initiator::retransmit(bool fail)
         // fallback to Hello packet again...
     }
     retransmit_timer_.restart();
+}
+
+/**
+ * Cookie has expired, so we should retry from the very beginning.
+ */
+void
+initiator::cookie_expired()
+{
+    if (state_ == state::initiate) {
+        return;
+    }
 }
 
 void
@@ -119,6 +133,7 @@ initiator::cancel()
 {
     logger::debug() << "Stop initiating to " << target_;
     retransmit_timer_.stop();
+    minute_timer_.stop();
     host_->unregister_initiator(target_);
 }
 
@@ -161,6 +176,8 @@ initiator::got_cookie(boost::asio::const_buffer buf, uia::comm::socket_endpoint 
 
     // @todo remember cookie for 1 minute
     minute_cookie_ = cookie_buf;
+    minute_timer_.start();
+
 
     send_initiate(minute_cookie_, "");
 }

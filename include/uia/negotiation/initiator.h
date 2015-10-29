@@ -65,7 +65,7 @@ class initiator : public std::enable_shared_from_this<initiator>
     uia::async::timer retransmit_timer_;
 
     void retransmit(bool fail);
-
+    void cookie_expired();
     void done();
 
     // Key exchange state
@@ -76,6 +76,7 @@ class initiator : public std::enable_shared_from_this<initiator>
     std::string server_short_term_public_key;   // remote_peer.short_term key
 
     std::string minute_cookie_; // one-minute cookie received after hello packet response
+    uia::async::timer minute_timer_;
 
 public:
     /// Start key negotiation with remote peer. If successful, this negotiation will yield a
