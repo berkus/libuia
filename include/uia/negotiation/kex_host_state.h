@@ -27,6 +27,7 @@ class kex_host_state
      * Used for handling R0 packets during hole-punching.
      */
     std::unordered_map<comm::endpoint, initiator_ptr> initiators_;
+    std::mutex initiators_mutex_;
 
 public:
     initiator_ptr get_initiator(comm::endpoint ep);
