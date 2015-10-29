@@ -22,6 +22,9 @@ namespace negotiation {
  */
 class kex_host_state
 {
+    responder_ptr responder_{nullptr};
+    // std::unordered_map<uia::peer_identity, std::shared_ptr<internal::stream_peer>> peers_;
+
     /**
      * Initiators by endpoint.
      * Used for handling R0 packets during hole-punching.
@@ -29,12 +32,19 @@ class kex_host_state
     std::unordered_map<comm::endpoint, initiator_ptr> initiators_;
     std::mutex initiators_mutex_;
 
+    virtual host_ptr get_host() = 0;
+
 public:
     initiator_ptr get_initiator(comm::endpoint ep);
     void register_initiator(comm::endpoint ep, initiator_ptr ki);
     void unregister_initiator(comm::endpoint ep);
 
     void instantiate_responder(); // virtual abstract?
+    inline responder_ptr channel_responder()
+    {
+        instantiate_responder();
+        return responder_;
+    }
 };
 
 } // negotiation namespace
