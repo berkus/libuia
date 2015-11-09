@@ -83,7 +83,7 @@ protected:
     virtual socket_channel_uptr create_channel(sodiumpp::secret_key local_short,
                                         sodiumpp::public_key remote_short,
                                         sodiumpp::public_key remote_long,
-                                        uia::comm::socket_endpoint const& initiator_ep) = 0;
+                                        uia::comm::socket_endpoint const& initiator_ep);
     friend class initiator;
 
 private:

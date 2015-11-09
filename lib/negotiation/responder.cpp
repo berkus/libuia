@@ -72,6 +72,17 @@ responder::is_initiator_acceptable(uia::comm::socket_endpoint const& initiator_e
     return true;
 }
 
+socket_channel_uptr
+responder::create_channel(sodiumpp::secret_key local_short,
+                          sodiumpp::public_key remote_short,
+                          sodiumpp::public_key remote_long,
+                          uia::comm::socket_endpoint const& initiator_ep)
+{
+    auto ch = boost::make_unique<socket_channel>(local_short, remote_short, initiator_ep);
+    ch->start();
+    return ch;
+}
+
 void
 responder::receive(boost::asio::const_buffer msg, uia::comm::socket_endpoint src)
 {
