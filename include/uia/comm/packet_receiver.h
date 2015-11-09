@@ -10,13 +10,14 @@
 
 #include <memory>
 #include <boost/asio/buffer.hpp>
+#include "uia/channels/channel_host_state.h"
+#include "uia/forward_ptrs.h"
 
 class byte_array;
 
 namespace uia {
 namespace comm {
 
-class socket_host_interface;
 class socket_endpoint;
 
 /**
@@ -25,29 +26,29 @@ class socket_endpoint;
  */
 class packet_receiver : public std::enable_shared_from_this<packet_receiver>
 {
-    socket_host_interface* host_interface_{nullptr};
-    uint64_t magic_{0};
+    host_ptr host_{nullptr};
+    packet_magic_t magic_{0};
 
 protected:
-    inline packet_receiver(socket_host_interface* hi)
-        : host_interface_(hi)
+    inline packet_receiver(host_ptr hi)
+        : host_(hi)
     {
     }
 
-    inline packet_receiver(socket_host_interface* hi, uint64_t magic)
-        : host_interface_(hi)
+    inline packet_receiver(host_ptr hi, packet_magic_t magic)
+        : host_(hi)
     {
         bind(magic);
     }
 
     inline ~packet_receiver() { unbind(); }
 
-    inline uint64_t magic() const { return magic_; }
+    inline packet_magic_t magic() const { return magic_; }
 
     inline bool is_bound() const { return magic_ != 0; }
 
 public:
-    void bind(uint64_t magic);
+    void bind(packet_magic_t magic);
     void unbind();
 
     /**

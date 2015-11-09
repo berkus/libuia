@@ -34,7 +34,9 @@ add_library(uia STATIC
     host.cpp
     peer_identity.cpp
     peer.cpp
+    message_receiver.cpp
     channels/socket_channel.cpp
+    channels/channel_host_state.cpp
     timer.cpp
     asio_host_state.cpp
     ${simulator_SOURCES}

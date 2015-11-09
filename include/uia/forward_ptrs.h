@@ -27,6 +27,7 @@ namespace comm {
 
 class socket;
 class packet_receiver;
+class message_receiver;
 
 using socket_ptr  = std::shared_ptr<socket>;
 using socket_wptr = std::weak_ptr<socket>;
@@ -35,6 +36,10 @@ using socket_uptr = std::unique_ptr<socket>;
 using packet_receiver_ptr  = std::shared_ptr<packet_receiver>;
 using packet_receiver_wptr = std::weak_ptr<packet_receiver>;
 using packet_receiver_uptr = std::unique_ptr<packet_receiver>;
+
+using message_receiver_ptr  = std::shared_ptr<message_receiver>;
+using message_receiver_wptr = std::weak_ptr<message_receiver>;
+using message_receiver_uptr = std::unique_ptr<message_receiver>;
 
 } // comm namespace
 

@@ -58,7 +58,7 @@ namespace negotiation {
 //=================================================================================================
 
 responder::responder(host_ptr host)
-    : packet_receiver(host.get())
+    : packet_receiver(host)
     , host_(host)
     , minute_key_rotation_(host.get())
 {

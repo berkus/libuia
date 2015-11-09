@@ -1,33 +1,46 @@
+//
+// Part of Metta OS. Check http://atta-metta.net for latest version.
+//
+// Copyright 2007 - 2015, Stanislav Karchebnyy <berkus@atta-metta.net>
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
+//
 #pragma once
 
+#include "uia/comm/packet_receiver.h"
+#include "uia/comm/socket_endpoint.h"
 #include <boost/signals2/signal.hpp>
-#include "comm/socket_endpoint.h"
-#include "comm/packet_receiver.h"
+
+namespace uia {
+namespace comm {
 
 // Get a message, dispatch to the right channel if exists.
-class message_receiver : public public uia::comm::packet_receiver
+class message_receiver : public uia::comm::packet_receiver
 {
     /**
-     * Channels working through this socket at the moment.
-     * Socket does NOT own the channels.
+     * Channels working through this receiver at the moment.
+     * Receiver does NOT own the channels.
      * Channels are distinguished by sender's short-term public key.
      */
-    std::map<std::string, std::weak_ptr<socket_channel>> channels_;
+    std::map<std::string, socket_channel_wptr> channels_;
 
 public:
+    message_receiver(host_ptr host);
+
     /**
      * Find channel attached to this socket.
      *
      * @todo channel_key should be enough without the src, since it's 32 bytes chances of collision
      * are negligible, and it might also keep working if other endpoint changes address.
      */
-    std::weak_ptr<socket_channel> channel_for(std::string channel_key);
+    socket_channel_wptr channel_for(boost::string_ref channel_key);
 
     /**
      * Bind a new socket_channel to this socket.
      * Called by socket_channel::bind() to register in the table of channels.
      */
-    bool bind_channel(std::string channel_key, std::weak_ptr<socket_channel> lc);
+    bool bind_channel(std::string channel_key, socket_channel_wptr lc);
 
     /**
      * Unbind a socket_channel associated with channel short-term key @a channel_key.
@@ -35,5 +48,8 @@ public:
      */
     void unbind_channel(std::string channel_key);
 
-    void receive(byte_array const& msg, uia::comm::socket_endpoint const& src) override;
+    void receive(boost::asio::const_buffer msg, socket_endpoint src) override;
 };
+
+} // comm namespace
+} // uia namespace

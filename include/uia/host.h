@@ -14,6 +14,7 @@
 #include "uia/comm/socket_protocol.h"
 #include "uia/negotiation/kex_host_state.h"
 #include "uia/comm/socket_host_state.h"
+#include "uia/channels/channel_host_state.h"
 #include "uia/asio_host_state.h"
 
 namespace uia {
@@ -23,7 +24,8 @@ class host : public std::enable_shared_from_this<host>,
              public negotiation::kex_host_state,
              public identity_host_state,
              protected virtual asio_host_state,
-             public timer_host_state
+             public timer_host_state,
+             public comm::channel_host_state
 {
 protected:
     struct private_tag
