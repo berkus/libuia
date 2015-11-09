@@ -23,12 +23,12 @@ namespace uia {
  */
 class socket_channel : public std::enable_shared_from_this<socket_channel>
 {
-    uia::comm::socket_wptr socket_;             ///< Socket we're currently bound to, if any.
+    uia::comm::socket_wptr socket_;  ///< Socket we're currently bound to, if any.
     uia::comm::endpoint remote_ep_;  ///< Endpoint of the remote side.
-    bool active_{false};             ///< True if we're sending and accepting packets.
     // @todo change these to krypto::secret_key and krypto::public_key
     sodiumpp::secret_key local_key_;///< Near end short-term secret key.
     sodiumpp::public_key remote_key_;///< Far end short-term public key.
+    bool active_{false};             ///< True if we're sending and accepting packets.
 
     /**
      * Encode and authenticate data packet.
@@ -45,13 +45,16 @@ class socket_channel : public std::enable_shared_from_this<socket_channel>
     bool receive_decode(boost::asio::const_buffer in, byte_array& out);
 
 public:
+    socket_channel(sodiumpp::secret_key local_short,
+                          sodiumpp::public_key remote_short,
+                          uia::comm::socket_endpoint const& responder_ep);
     inline virtual ~socket_channel() { unbind(); }
 
     /**
      * Start the channel.
      * @param initiate Initiate the key exchange using kex_initiator.
      */
-    inline virtual void start(bool initiate)
+    inline virtual void start()
     {
         // assert(!remote_channel_key_.empty());
         active_ = true;
@@ -71,7 +74,10 @@ public:
      */
     inline bool is_congestion_controlled()
     {
-        return socket_.lock()->is_congestion_controlled(remote_ep_);
+        if (auto sock = socket_.lock()) {
+            return sock->is_congestion_controlled(remote_ep_);
+        }
+        return false;
     }
 
     /**
@@ -150,7 +156,7 @@ public:
     ready_transmit_signal on_ready_transmit;
     /**@}*/
 
-protected:
+// protected: @fixme
     /**
      * When the underlying socket is already congestion-controlled, this function returns
      * the number of bytes that channel control says we may transmit now, 0 if none.
@@ -170,6 +176,8 @@ protected:
         }
         return false;
     }
+
+    void send_message(std::string payload);
 };
 
 } // uia namespace

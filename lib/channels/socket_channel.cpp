@@ -10,6 +10,16 @@
 #include "uia/comm/socket.h"
 
 namespace uia {
+
+socket_channel::socket_channel(sodiumpp::secret_key local_short,
+                          sodiumpp::public_key remote_short,
+                          uia::comm::socket_endpoint const& ep)
+    : socket_(ep.socket())
+    , remote_ep_(ep)
+    , local_key_(local_short)
+    , remote_key_(remote_short)
+{}
+
 /*
 bool
 socket_channel::bind(socket::weak_ptr socket, endpoint const& remote_ep, std::string channel_key)
