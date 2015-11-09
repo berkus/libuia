@@ -58,8 +58,7 @@ initiator::initiator(host_ptr host, peer_identity const& target_peer, comm::sock
     retransmit_timer_.on_timeout.connect([this](bool fail) { retransmit(fail); });
     minute_timer_.on_timeout.connect([this](bool fail) { cookie_expired(); });
 
-    logger::debug() << "Long term responder pk "
-                    << encode::to_proquint(remote_id_.public_key());
+    logger::debug() << "Long term responder pk " << encode::to_proquint(remote_id_.public_key());
 }
 
 initiator::~initiator()
@@ -149,8 +148,8 @@ initiator::send_hello()
 
     uia::packets::hello_packet_header pkt;
     pkt.initiator_shortterm_public_key = as_array<32>(short_term_secret_key.pk.get());
-    pkt.box = as_array<80>(seal.box(box_contents));
-    pkt.nonce = as_array<8>(seal.nonce_sequential());
+    pkt.box                            = as_array<80>(seal.box(box_contents));
+    pkt.nonce                          = as_array<8>(seal.nonce_sequential());
 
     socket_send(target_, pkt);
     retransmit_timer_.start();
@@ -161,6 +160,7 @@ initiator::send_hello()
 void
 initiator::got_cookie(boost::asio::const_buffer buf, uia::comm::socket_endpoint const& src)
 {
+    logger::debug() << "initiator::got_cookie from endpoint " << src;
     if (src != target_)
         return; // not our cookie!
 
@@ -174,15 +174,20 @@ initiator::got_cookie(boost::asio::const_buffer buf, uia::comm::socket_endpoint 
     string open = unseal.unbox(as_string(cookie.box));
 
     server_short_term_public_key = subrange(open, 0, 32);
-    string cookie_buf            = subrange(open, 32, 96);
+    minute_cookie_               = subrange(open, 32, 96);
 
-    // @todo remember cookie for 1 minute
-    minute_cookie_ = cookie_buf;
+    // remember cookie for 1 minute
     minute_timer_.start();
 
     // optimistically spawn a channel here and let client prepare some data
     // to send in the initiate packet
-    create_channel(short_term_secret_key, server_short_term_public_key, remote_id_.public_key(), src);
+    create_channel(
+        short_term_secret_key, server_short_term_public_key, remote_id_.public_key(), src);
+    // channel should be created in "setting up" state to indicate that
+    // no ACKs have been received from the other side yet.
+
+    // @todo: Resource management gets tricky, if we get no response to our initiate, we need
+    // to destroy the channel, return all send-but-not-acked data to client and start over.
 
     send_initiate(minute_cookie_, "");
 }
@@ -193,7 +198,9 @@ initiator::create_channel(sodiumpp::secret_key local_short,
                           sodiumpp::public_key remote_long,
                           uia::comm::socket_endpoint const& responder_ep)
 {
-    channel_ = host_->channel_responder()->create_channel(local_short, remote_short, remote_long, responder_ep);
+    logger::debug() << "initiator::create_channel optimistically for " << responder_ep;
+    channel_ = host_->channel_responder()->create_channel(
+        local_short, remote_short, remote_long, responder_ep);
 
     channel_->on_ready_transmit(); // up to 1 packet can be sent now
     // but this is useless, because nobody has connected to the channel yet....
@@ -215,8 +222,8 @@ initiator::send_initiate(std::string cookie, std::string payload)
     pkt.responder_cookie.nonce         = as_array<16>(subrange(cookie, 0, 16));
     pkt.responder_cookie.box           = as_array<80>(subrange(cookie, 16));
 
-    auto box_contents = host_->host_identity().secret_key().pk.get() + vouchSeal.nonce_sequential() + vouch
-                 + payload;
+    auto box_contents = host_->host_identity().secret_key().pk.get() + vouchSeal.nonce_sequential()
+                        + vouch + payload;
     boxer<nonce64> seal(server_short_term_public_key, short_term_secret_key, INITIATE_NONCE_PREFIX);
     pkt.box = seal.box(box_contents);
     // @todo Round payload size to next or second next multiple of 16..
