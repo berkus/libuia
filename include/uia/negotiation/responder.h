@@ -32,6 +32,10 @@ namespace negotiation {
  */
 class responder : public comm::packet_receiver
 {
+    // This is what it's all happening for. Channel we'll create and hopefully return upon
+    // established connection via on_completed() signal.
+    socket_channel_ptr channel_;
+
     host_ptr host_;
 
     sodiumpp::secret_key short_term_key; // generated
@@ -47,7 +51,7 @@ public:
      */
     responder(host_ptr host);
 
-    virtual host_ptr get_host() { return host_; }
+    // virtual host_ptr get_host() { return host_; }
 
     /**
      * Socket calls this with key exchange messages intended for us.
@@ -63,6 +67,12 @@ public:
      * and prod the client into (re-)sending us its "hello" immediately.
      */
     void send_probe(comm::endpoint dest);
+
+    /**
+     * Send completion signal, giving created channel on success or nullptr on failure.
+     */
+    using completion_signal = boost::signals2::signal<void()>;
+    completion_signal on_completed;
 
 protected:
     /**

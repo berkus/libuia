@@ -51,6 +51,24 @@ socket_send(uia::comm::socket_endpoint const& target, T const& msg)
 } // anonymous namespace
 
 namespace uia {
+
+void
+socket_channel::send_message(string payload)
+{
+    logger::debug() << "Channel sending MESSAGE to " << remote_ep_;
+    uia::packets::message_packet_header packet;
+
+    boxer<random_nonce<8>> seal(
+        remote_key_, local_key_, MESSAGE_NONCE_PREFIX);
+    string box = seal.box(payload);
+
+    packet.shortterm_public_key = as_array<32>(local_key_.pk.get());
+    packet.box = box;
+    packet.nonce = as_array<8>(seal.nonce_sequential());
+
+    socket_send(comm::socket_endpoint(socket_, remote_ep_), packet);
+}
+
 namespace negotiation {
 
 //=================================================================================================
@@ -95,6 +113,7 @@ responder::receive(boost::asio::const_buffer msg, uia::comm::socket_endpoint src
             return got_hello(msg, src);
         case magic::cookie_packet::value: {
             auto initiator = host_->get_initiator(src);
+            logger::debug() << "Found initiator " << initiator;
             return initiator->got_cookie(msg, src);
         }
         case magic::initiate_packet::value:
@@ -204,7 +223,7 @@ responder::got_initiate(boost::asio::const_buffer buf, uia::comm::socket_endpoin
     logger::debug() << "Responder VALIDATED initiate packet from " << src;
 
     // Channel needs two pairs of short-term keys and remote endpoint to operate
-    auto chan = create_channel(short_term_key, client_short_term_key, client_long_term_key, src);
+    channel_ = create_channel(short_term_key, client_short_term_key, client_long_term_key, src);
 
     // All is good, what's in the payload?
     // @todo Pass payload to the channel.
@@ -212,6 +231,12 @@ responder::got_initiate(boost::asio::const_buffer buf, uia::comm::socket_endpoin
 
     // string payload = subrange(msg, 96);
     // hexdump(payload);
+
+    // Send back message as an ACK so that initiator stops trying
+    channel_->send_message("");
+
+    // Indicate KEX is successful
+    on_completed();
 }
 
 void

@@ -89,7 +89,11 @@ peer::peer(host_ptr host, uia::peer_identity remote_id)
 {
     assert(!remote_id.is_null());
     // reconnect_timer_.on_timeout.connect([this](bool failed) { retry_timeout(); });
+    host_->instantiate_responder();// should happen at some point before we start kex
 }
+
+peer::~peer()
+{}
 
 // void
 // peer::retry_timeout()
