@@ -94,7 +94,7 @@ using udp_request_ptr = std::shared_ptr<udp_request>;
 
 // @fixme We only need io_service, so just pass that in?
 udp_socket::udp_socket(uia::host_ptr host)
-    : socket(host.get())
+    : socket(host)
     , udp_socket_(host->get_io_service())
     , strand_(host->get_io_service())
 {

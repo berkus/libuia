@@ -29,7 +29,7 @@ class socket : public std::enable_shared_from_this<socket>
     /**
      * Host state instance this socket is attached to.
      */
-    socket_host_interface* host_interface_{nullptr};
+    host_ptr host_{nullptr};
 
     /**
      * True if this socket is fair game for use by upper level protocols.
@@ -47,8 +47,8 @@ public:
 
     static std::string status_string(status s);
 
-    socket(socket_host_interface* hi)
-        : host_interface_(hi)
+    socket(host_ptr hi)
+        : host_(hi)
     {
     }
     virtual ~socket();

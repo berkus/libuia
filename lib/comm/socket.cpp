@@ -12,6 +12,7 @@
 #include "arsenal/subrange.h"
 #include "uia/comm/packet_receiver.h" // FIXME
 #include "uia/comm/socket_protocol.h"
+#include "uia/host.h"
 
 using namespace std;
 using namespace boost;
@@ -42,9 +43,9 @@ socket::set_active(bool active)
 {
     active_ = active;
     if (active_) {
-        host_interface_->activate_socket(shared_from_this());
+        host_->activate_socket(shared_from_this());
     } else {
-        host_interface_->deactivate_socket(shared_from_this());
+        host_->deactivate_socket(shared_from_this());
     }
 }
 
@@ -64,7 +65,7 @@ socket::receive(asio::const_buffer msg, socket_endpoint const& src)
 
         const uint64_t magic = *asio::buffer_cast<const uint64_t*>(msg);
 
-        if (auto rcvr = host_interface_->receiver_for(magic).lock()) {
+        if (auto rcvr = host_->receiver_for(magic).lock()) {
             return rcvr->receive(msg, src);
         }
     }
