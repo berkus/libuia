@@ -1,7 +1,7 @@
 //
 // Part of Metta OS. Check http://atta-metta.net for latest version.
 //
-// Copyright 2007 - 2014, Stanislav Karchebnyy <berkus@atta-metta.net>
+// Copyright 2007 - 2015, Stanislav Karchebnyy <berkus@atta-metta.net>
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,7 +15,7 @@
 #include "uia/comm/socket.h"
 #include "uia/comm/packet_receiver.h"
 #include "uia/comm/udp_socket.h"
-#include "uia/socket_host_state.h"
+#include "uia/comm/socket_host_state.h"
 
 using namespace std;
 using namespace uia::comm;
@@ -27,17 +27,6 @@ namespace comm {
 //=================================================================================================
 // socket_host_state
 //=================================================================================================
-
-packet_receiver_wptr
-socket_host_state::receiver_for(uint64_t magic)
-{
-    auto it = receivers_.find(magic);
-    if (it == receivers_.end()) {
-        logger::debug() << "Receiver not found looking for magic " << hex << magic;
-        return packet_receiver_wptr();
-    }
-    return it->second;
-}
 
 socket_ptr
 socket_host_state::create_socket()

@@ -13,6 +13,7 @@ set(comm_SOURCES
     comm/udp_socket.cpp
     comm/socket_endpoint.cpp
     comm/packet_receiver.cpp
+    comm/socket_host_state.cpp
     )
 
 set(kex_SOURCES
@@ -29,7 +30,6 @@ add_library(uia STATIC
     channels/socket_channel.cpp
     timer.cpp
     asio_host_state.cpp
-    socket_host_state.cpp
     ${comm_SOURCES}
     ${platform_SOURCES}
     ${kex_SOURCES})

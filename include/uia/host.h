@@ -13,7 +13,7 @@
 #include "uia/timer.h"
 #include "uia/comm/socket_protocol.h"
 #include "uia/negotiation/kex_host_state.h"
-#include "uia/socket_host_state.h"
+#include "uia/comm/socket_host_state.h"
 #include "uia/asio_host_state.h"
 
 namespace uia {

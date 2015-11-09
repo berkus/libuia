@@ -31,13 +31,8 @@ namespace comm {
  */
 class socket_host_state : public virtual asio_host_state, public comm::socket_host_interface
 {
-    using packet_receiver = uia::comm::packet_receiver;
-    using socket_set      = std::set<uia::comm::socket_wptr, std::owner_less<uia::comm::socket_wptr>>;
+    using socket_set = std::set<uia::comm::socket_wptr, std::owner_less<uia::comm::socket_wptr>>;
 
-    /**
-     * Lookup table of all registered packet_receivers for this host, keyed on their magic.
-     */
-    std::unordered_map<packet_magic_t, uia::comm::packet_receiver_wptr> receivers_;
     /**
      * List of all currently-active sockets.
      */
@@ -74,27 +69,6 @@ protected:
                      uint16_t default_port = uia::comm::DEFAULT_PORT);
 
 public:
-    /*@{*/
-    /*@name receiver_host_interface implementation */
-    /**
-     * Create a receiver and bind it to control channel magic.
-     */
-    void bind_receiver(packet_magic_t magic, uia::comm::packet_receiver_wptr receiver) override
-    {
-        // @todo: Will NOT replace existing element.
-        receivers_.insert(std::make_pair(magic, receiver));
-    }
-
-    void unbind_receiver(packet_magic_t magic) override { receivers_.erase(magic); }
-
-    bool has_receiver_for(packet_magic_t magic) override { return contains(receivers_, magic); }
-
-    /**
-     * Find and return a receiver for given control channel magic value.
-     */
-    uia::comm::packet_receiver_wptr receiver_for(packet_magic_t magic) override;
-    /*@}*/
-
     /*@{*/
     /*@name comm_host_interface implementation */
 
