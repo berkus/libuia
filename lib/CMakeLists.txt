@@ -17,7 +17,6 @@ set(comm_SOURCES
     )
 
 set(kex_SOURCES
-    negotiation/channel_initiator.cpp
     negotiation/initiator.cpp
     negotiation/responder.cpp
     negotiation/kex_host_state.cpp

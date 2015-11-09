@@ -9,7 +9,7 @@
 #include "uia/peer.h"
 #include "uia/host.h"
 #include "uia/channels/socket_channel.h"
-#include "uia/negotiation/channel_initiator.h"
+#include "uia/negotiation/initiator.h"
 #include "arsenal/logging.h"
 
 namespace uia {
@@ -189,7 +189,7 @@ peer::initiate_key_exchange(uia::comm::socket_wptr l, uia::comm::endpoint const&
     // } // @sa stream_responder::create_channel
 
     // Start the key exchange process for the channel.
-    auto init = std::make_shared<negotiation::channel_initiator>(host_, remote_id_, lep);
+    auto init = std::make_shared<negotiation::initiator>(host_, remote_id_, lep);
 
     init->on_completed.connect([this](negotiation::initiator_ptr ki, socket_channel_ptr ch) { completed(ki, ch); });
 
