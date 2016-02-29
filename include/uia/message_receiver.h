@@ -30,9 +30,6 @@ public:
 
     /**
      * Find channel attached to this socket.
-     *
-     * @todo channel_key should be enough without the src, since it's 32 bytes chances of collision
-     * are negligible, and it might also keep working if other endpoint changes address.
      */
     socket_channel_wptr channel_for(boost::string_ref channel_key);
 
@@ -40,7 +37,7 @@ public:
      * Bind a new socket_channel to this socket.
      * Called by socket_channel::bind() to register in the table of channels.
      */
-    bool bind_channel(std::string channel_key, socket_channel_wptr lc);
+    bool bind_channel(std::string channel_key, socket_channel_wptr channel);
 
     /**
      * Unbind a socket_channel associated with channel short-term key @a channel_key.

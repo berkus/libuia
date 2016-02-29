@@ -23,9 +23,9 @@ class host : public std::enable_shared_from_this<host>,
              public comm::socket_host_state,
              public negotiation::kex_host_state,
              public identity_host_state,
-             protected virtual asio_host_state,
              public timer_host_state,
-             public comm::channel_host_state
+             public comm::channel_host_state,
+             protected virtual asio_host_state
 {
 protected:
     struct private_tag
@@ -61,7 +61,7 @@ public:
      */
     static host_ptr create(settings_provider* settings,
                            uint16_t default_port = uia::comm::DEFAULT_PORT);
-    // Overload to make calls simpler.
+    // Overload with shared pointer to settings.
     static inline host_ptr create(std::shared_ptr<settings_provider> settings,
                                   uint16_t default_port = uia::comm::DEFAULT_PORT)
     {

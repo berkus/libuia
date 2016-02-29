@@ -11,9 +11,9 @@
 namespace uia {
 namespace comm {
 
-constexpr size_t MIN_PACKET_SIZE = 64;
-constexpr uint16_t DEFAULT_PORT  = 9660;
-constexpr size_t MTU             = 1280; // an ipv6 frame size, not fragmentable
+constexpr size_t   MIN_PACKET_SIZE = 64;
+constexpr uint16_t DEFAULT_PORT    = 9660;
+constexpr size_t   MTU             = 1280; // an ipv6 frame size, not fragmentable
 
 } // comm namespace
 } // uia namespace

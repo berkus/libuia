@@ -42,8 +42,7 @@ public:
     public:
         explicit inline bad_key()
             : std::runtime_error("bad identity key")
-        {
-        }
+        {}
     };
 
     /**
