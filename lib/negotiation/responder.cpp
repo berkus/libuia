@@ -58,7 +58,7 @@ socket_channel::send_message(string payload)
     logger::debug() << "Channel sending MESSAGE to " << remote_ep_;
     uia::packets::message_packet_header packet;
 
-    boxer<random_nonce<8>> seal(
+    boxer<random_nonce<16>> seal(
         remote_key_, local_key_, MESSAGE_NONCE_PREFIX);
     string box = seal.box(payload);
 
