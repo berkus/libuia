@@ -11,6 +11,7 @@
 #include "arsenal/settings_provider.h"
 
 using namespace std;
+using sodiumpp::key_purpose;
 
 namespace uia {
 
@@ -19,12 +20,12 @@ namespace uia {
 //=================================================================================================
 
 peer_identity::peer_identity(string const& id)
-    : id_(id)
+    : secret_key_.pk.bytes(id)
 {
 }
 
 peer_identity::peer_identity(string const& id, string const& key)
-    : id_(id)
+    : secret_key_.pk.bytes(id)
 {
     if (!set_key(key)) {
         throw bad_key();
@@ -34,7 +35,7 @@ peer_identity::peer_identity(string const& id, string const& key)
 void
 peer_identity::clear_key()
 {
-    private_key_.clear();
+    secret_key_.clear();
 }
 
 bool
@@ -42,18 +43,18 @@ peer_identity::set_key(string const& key)
 {
     clear_key();
 
-    private_key_ = key;
+    secret_key_ = key;
 
     // Verify that the supplied key actually matches the ID we have.
     // *** This is a crucial step for security! ***
     string test = "this is a key test";
     // @todo Verify by encrypting with public key and then decrypting with secret key
-    // if (key_id != id_)
-    // {
-    //     clear_key();
-    //     logger::warning() << "Attempt to set mismatching identity key!";
-    //     return false;
-    // }
+    if (test != test)
+    {
+        clear_key();
+        BOOST_LOG_TRIVIAL(warning) << "Attempt to set mismatching identity key!";
+        return false;
+    }
 
     return true;
 }
@@ -61,20 +62,13 @@ peer_identity::set_key(string const& key)
 peer_identity
 peer_identity::generate()
 {
-    sodiumpp::secret_key k;
-    return peer_identity(k.pk.get(), k.get());
+    return peer_identity();
 }
 
-string
-peer_identity::public_key() const
-{
-    return id_;
-}
-
-sodiumpp::secret_key
+sodiumpp::secret_key<key_purpose::box>
 peer_identity::secret_key() const
 {
-    return sodiumpp::secret_key(id_, private_key_);
+    return secret_key_;
 }
 
 //=================================================================================================

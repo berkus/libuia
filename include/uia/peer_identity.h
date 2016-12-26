@@ -23,15 +23,18 @@ namespace uia {
  *
  * SSS uses EIDs in place of IP addresses to identify hosts or virtual endpoint identities
  * on a particular host (e.g., identites for specific user accounts on multiuser hosts).
+ *
  * Although EIDs are not usually intended to be seen by the user, they have a standard
- * filename/URL-compatible base32 text encoding. A 16-word proquint encoding is also possible.
+ * filename/URL-compatible base32 text encoding.
+ * A 16-word proquint encoding is also possible.
+ * A 0mq z85 encoding is also possible.
+ *
  * Yet another way to exchange the EIDs between two users is QR-code.
  * User profile classes handle this, as they also attach profile information to generated QR-codes.
  */
 class peer_identity
 {
-    std::string id_; // public key
-    std::string private_key_;
+    sodiumpp::secret_key<sodiumpp::key_purpose::box> secret_key_;
 
 public:
     /**
@@ -46,7 +49,7 @@ public:
     };
 
     /**
-     * Create an invalid identity.
+     * Create an invalid identity. @todo generates new sk presently
      */
     peer_identity() = default;
 
@@ -58,7 +61,7 @@ public:
 
     struct proquint_tag {};
     /**
-     * Create an identity with a given proquint representation of binary identifier.
+     * Create an identity with a given proquint representation of binary identifier (pk).
      * @param proquint the binary identifier in proquint text encoding.
      */
     inline peer_identity(std::string proquint, proquint_tag)
@@ -67,7 +70,7 @@ public:
     }
 
     /**
-     * Create an identity with a binary identifier and corresponding private key.
+     * Create an identity with a binary identifier (pk) and corresponding secret key.
      * Throws bad_key if key data is invalid.
      * @param id the binary identifier.
      * @param key the binary representation of the key associated with the identifier.
@@ -75,7 +78,7 @@ public:
     peer_identity(std::string const& id, std::string const& key);
 
     /**
-     * Generate a new cryptographic identity with unique private key, using reasonable
+     * Generate a new cryptographic identity with unique secret key, using reasonable
      * default parameters.
      * @return the generated identity.
      */
@@ -85,7 +88,7 @@ public:
      * Get this identity's short binary EID.
      * @return the binary identifier as a byte_array.
      */
-    std::string id() const { return id_; }
+    std::string id() const { return secret_key_.pk.get(); }
 
     /**
      * Set the identity's short binary EID.
@@ -94,7 +97,7 @@ public:
      */
     inline void set_id(std::string const& id)
     {
-        id_ = id;
+        secret_key_.pk.bytes = id;
         clear_key();
     }
 
@@ -103,7 +106,7 @@ public:
      * usable for signature verification.
      * @return true if this identity contains a public key.
      */
-    inline bool has_key() const { return !id_.empty(); }
+    inline bool has_key() const { return !secret_key_.pk.get().empty(); }
 
     /**
      * Determine whether this identifier contains a private key
@@ -116,20 +119,21 @@ public:
      * Check for the distinguished "null identity".
      * @return true if this is a null identity.
      */
-    inline bool is_null() const { return id_.empty(); }
+    inline bool is_null() const { return secret_key_.pk.get().empty(); }
 
     /**
      * Get this identity's binary-encoded public key.
      * @return the binary key representation.
      */
-    std::string public_key() const;
+    std::string public_key() const { return secret_key_.pk.get(); }
 
     /**
      * Get this identity's public and private keys.
      * @return public and private key as single object.
      * @throws bad_key if no private key set.
      */
-    sodiumpp::secret_key secret_key() const;
+    // @todo must have a signing key too!
+    sodiumpp::secret_key<sodiumpp::key_purpose::box> secret_key() const;
 
     /**
      * Set the public or private key associated with this identity.
@@ -143,7 +147,7 @@ public:
     void clear_key();
 
     // Return proquint-encoded public ID
-    inline std::string to_string() const { return encode::to_proquint(id_); }
+    inline std::string to_string() const { return encode::to_proquint(secret_key_.pk.get()); }
 };
 
 inline bool
