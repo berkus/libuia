@@ -6,10 +6,11 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "uia/simulation/sim_connection.h"
 #include "uia/simulation/sim_host.h"
-#include <boost/format.hpp>
 
 using namespace std;
 

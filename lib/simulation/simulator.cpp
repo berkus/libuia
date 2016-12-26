@@ -6,10 +6,10 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/log/trivial.hpp>
 #include "uia/simulation/simulator.h"
 #include "uia/simulation/sim_timer_engine.h"
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace uia {
 namespace simulation {
