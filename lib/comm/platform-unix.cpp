@@ -6,16 +6,16 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "uia/comm/platform.h"
-#include "arsenal/logging.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <boost/asio.hpp>
 #include <algorithm>
+#include <boost/asio.hpp>
+#include <boost/log/trivial.hpp>
+#include "uia/comm/platform.h"
 
 using namespace std;
 
@@ -32,7 +32,7 @@ vector<endpoint> local_endpoints()
 
     ifaddrs *ifa{nullptr};
     if (getifaddrs(&ifa) < 0) {
-        logger::warning() << "Can't find my own IP addresses!?";
+        BOOST_LOG_TRIVIAL(warning) << "Can't find my own IP addresses!?";
         return result;
     }
 
@@ -52,7 +52,7 @@ vector<endpoint> local_endpoints()
                 if (address.is_loopback() or address.is_unspecified())
                     continue;
                 result.emplace_back(address, NO_PORT);
-                logger::debug() << "Local IP address: " << address;
+                BOOST_LOG_TRIVIAL(debug) << "Local IP address: " << address;
             }
             else if (sa->sa_family == AF_INET6)
             {
@@ -62,7 +62,7 @@ vector<endpoint> local_endpoints()
                 if (address.is_loopback() or address.is_link_local() or address.is_unspecified())
                     continue;
                 result.emplace_back(address, NO_PORT);
-                logger::debug() << "Local IP address: " << address;
+                BOOST_LOG_TRIVIAL(debug) << "Local IP address: " << address;
             }
         }
     }

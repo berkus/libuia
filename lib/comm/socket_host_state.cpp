@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "arsenal/logging.h"
+#include <boost/log/trivial.hpp>
 #include "arsenal/flurry.h"
 #include "arsenal/any_int_cast.h"
 #include "arsenal/byte_array_wrap.h"
@@ -67,7 +67,7 @@ socket_host_state::init_socket(settings_provider* settings, uint16_t default_por
         if (primary_socket_->bind(local_ep)) {
             break;
         }
-        logger::warning() << "Can't bind to port " << dec << default_port << " ("
+        BOOST_LOG_TRIVIAL(warning) << "Can't bind to port " << dec << default_port << " ("
                           << primary_socket_->error_string() << ") - trying another";
 
         local_ep.port(0);
@@ -75,21 +75,21 @@ socket_host_state::init_socket(settings_provider* settings, uint16_t default_por
             break;
         }
         // @todo There might be a day when ipv4 does not exist anymore...
-        logger::fatal() << "Couldn't bind the socket on ipv4 - " << primary_socket_->error_string();
+        BOOST_LOG_TRIVIAL(fatal) << "Couldn't bind the socket on ipv4 - " << primary_socket_->error_string();
     } while (0);
 
     do {
         if (primary_socket6_->bind(local_ep6)) {
             break;
         }
-        logger::warning() << "Can't bind to port " << dec << default_port << " ("
+        BOOST_LOG_TRIVIAL(warning) << "Can't bind to port " << dec << default_port << " ("
                           << primary_socket6_->error_string() << ") - trying another";
 
         local_ep6.port(0);
         if (primary_socket6_->bind(local_ep6)) {
             break;
         }
-        logger::warning() << "Couldn't bind the socket on ipv6 ("
+        BOOST_LOG_TRIVIAL(warning) << "Couldn't bind the socket on ipv6 ("
                           << primary_socket6_->error_string() << "), trying ipv4";
     } while (0);
 

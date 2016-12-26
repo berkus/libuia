@@ -6,11 +6,11 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <memory>
+#include <boost/log/trivial.hpp>
 #include "uia/comm/udp_socket.h"
 #include "uia/comm/platform.h"
-#include "arsenal/logging.h"
 #include "uia/host.h" //for get_io_service() on host
-#include <memory>
 
 using namespace std;
 using namespace boost;
@@ -32,13 +32,13 @@ bind_socket(ip::udp::socket& sock, endpoint ep, std::string& error_string)
     sock.open(ep.protocol(), ec);
     if (ec) {
         error_string = ec.message();
-        logger::warning() << "udp socket open error - " << ec.message();
+        BOOST_LOG_TRIVIAL(warning) << "udp socket open error - " << ec.message();
         return false;
     }
     sock.bind(ep, ec);
     if (ec) {
         error_string = ec.message();
-        logger::warning() << "udp socket bind error - " << ec.message();
+        BOOST_LOG_TRIVIAL(warning) << "udp socket bind error - " << ec.message();
         return false;
     }
     error_string = "";
@@ -76,12 +76,12 @@ void
 udp_request::handle_request(system::error_code const& error, size_t bytes_transferred)
 {
     if (!error) {
-        logger::debug() << "Received " << dec << bytes_transferred << " bytes via UDP from "
+        BOOST_LOG_TRIVIAL(debug) << "Received " << dec << bytes_transferred << " bytes via UDP from "
                         << received_from_ << " on socket " << socket_;
         received_buffer_.commit(bytes_transferred);
         socket_->receive(asio::buffer(received_buffer_.data()), received_from_);
     } else {
-        logger::warning() << "UDP read error - " << error.message();
+        BOOST_LOG_TRIVIAL(warning) << "UDP read error - " << error.message();
         socket_->set_error(error.message());
     }
 }
@@ -157,10 +157,10 @@ udp_socket::local_port()
 bool
 udp_socket::bind(endpoint ep)
 {
-    logger::debug() << "udp_socket bind on endpoint " << ep;
+    BOOST_LOG_TRIVIAL(debug) << "udp_socket bind on endpoint " << ep;
     if (!bind_socket(udp_socket_, ep, error_string_))
         return false;
-    logger::debug() << "Bound udp_socket on " << ep;
+    BOOST_LOG_TRIVIAL(debug) << "Bound udp_socket on " << ep;
     // once bound, can start receiving datagrams.
     prepare_async_receive();
     set_active(true);
@@ -170,7 +170,7 @@ udp_socket::bind(endpoint ep)
 void
 udp_socket::unbind()
 {
-    logger::debug() << "udp_socket unbind";
+    BOOST_LOG_TRIVIAL(debug) << "udp_socket unbind";
     udp_socket_.shutdown(ip::udp::socket::shutdown_both);
     udp_socket_.close();
     set_active(false);
@@ -182,7 +182,7 @@ udp_socket::handle_sent(endpoint const& ep,
                         size_t bytes_transferred)
 {
     if (error) {
-        logger::warning() << "UDP write error - " << error.message();
+        BOOST_LOG_TRIVIAL(warning) << "UDP write error - " << error.message();
         set_error(error.message());
     }
 }

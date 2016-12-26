@@ -6,8 +6,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/log/trivial.hpp>
 #include "uia/peer_identity.h"
-#include "arsenal/logging.h"
 #include "arsenal/settings_provider.h"
 
 using namespace std;
@@ -94,7 +94,7 @@ void
 identity_host_state::set_host_identity(peer_identity const& ident)
 {
     if (!ident.has_private_key()) {
-        logger::warning() << "Using a host identity with no private key!";
+        BOOST_LOG_TRIVIAL(warning) << "Using a host identity with no private key!";
     }
     host_identity_ = ident;
 }
@@ -120,7 +120,7 @@ identity_host_state::init_identity(settings_provider* settings)
             return; // Success
     }
 
-    logger::warning() << "Invalid host identity in settings: generating new identity";
+    BOOST_LOG_TRIVIAL(warning) << "Invalid host identity in settings: generating new identity";
 
     // Generate a new key pair
     host_identity_ = peer_identity::generate();

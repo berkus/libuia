@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "arsenal/logging.h"
+#include <boost/log/trivial.hpp>
 #include "uia/channels/channel_host_state.h"
 #include "uia/negotiation/constants.h"
 #include "uia/message_receiver.h"
@@ -30,7 +30,7 @@ channel_host_state::receiver_for(packet_magic_t magic)
 {
     auto it = receivers_.find(magic);
     if (it == receivers_.end()) {
-        logger::debug() << "Receiver not found looking for magic " << hex << magic;
+        BOOST_LOG_TRIVIAL(debug) << "Receiver not found looking for magic " << hex << magic;
         return packet_receiver_wptr();
     }
     return it->second;

@@ -6,7 +6,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#include "arsenal/logging.h"
+#include <boost/log/trivial.hpp>
 #include "uia/comm/socket_endpoint.h"
 #include "uia/comm/socket.h"
 
@@ -23,7 +23,7 @@ socket_endpoint::send(const char *data, int size) const
     if (auto s = socket_.lock()) {
         return s->send(*this, data, size);
     }
-    logger::debug() << "Trying to send on a nonexistent link";
+    BOOST_LOG_TRIVIAL(debug) << "Trying to send on a nonexistent link";
     return false;
 }
 

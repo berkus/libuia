@@ -24,5 +24,5 @@ BOOST_FIXTURE_TEST_CASE(negotiate_channel, simulator_fixture)
     client.connect_channel();
     simulator->run();
 
-    logger::debug() << "<<< shutdown from this point on";
+    BOOST_LOG_TRIVIAL(debug) << "<<< shutdown from this point on";
 }

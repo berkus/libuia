@@ -6,8 +6,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/log/trivial.hpp>
 #include "uia/comm/socket.h"
-#include "arsenal/logging.h"
 #include "arsenal/algorithm.h"
 #include "arsenal/subrange.h"
 #include "uia/comm/packet_receiver.h" // FIXME
@@ -81,7 +81,7 @@ socket::is_congestion_controlled(endpoint const&)
 size_t
 socket::may_transmit(endpoint const&)
 {
-    logger::fatal() << "may_transmit() called on a non-congestion-controlled socket";
+    BOOST_LOG_TRIVIAL(fatal) << "may_transmit() called on a non-congestion-controlled socket";
     return 0;
 }
 

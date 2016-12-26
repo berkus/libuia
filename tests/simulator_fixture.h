@@ -9,7 +9,7 @@
 #pragma once
 
 #include <iostream>
-#include "arsenal/logging.h"
+#include <boost/log/trivial.hpp>
 #include "uia/simulation/simulator.h"
 #include "uia/simulation/sim_host.h"
 #include "uia/simulation/sim_socket.h"
@@ -49,7 +49,7 @@ struct simulator_fixture
         server_socket.reset();
         server_host.reset();
         simulator.reset();
-        logger::debug() << "<<< host use counts after reset " << std::dec << client_host.use_count()
+        BOOST_LOG_TRIVIAL(debug) << "<<< host use counts after reset " << std::dec << client_host.use_count()
                         << " and " << server_host.use_count();
     }
 

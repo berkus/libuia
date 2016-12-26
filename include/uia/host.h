@@ -8,7 +8,7 @@
 //
 #pragma once
 
-#include "arsenal/logging.h"
+#include <boost/log/trivial.hpp>
 #include "uia/peer_identity.h"
 #include "uia/timer.h"
 #include "uia/comm/socket_protocol.h"
@@ -35,7 +35,7 @@ protected:
 public:
     // Hide the constructor.
     explicit host(private_tag) {}
-    ~host() { logger::debug() << "~host " << this; }
+    ~host() { BOOST_LOG_TRIVIAL(debug) << "~host " << this; }
 
     inline host_ptr get_host() override { return shared_from_this(); }
 

@@ -7,9 +7,9 @@
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include "uia/comm/platform.h"
-#include <boost/asio.hpp>
 #include <algorithm>
-#include "arsenal/logging.h"
+#include <boost/asio.hpp>
+#include <boost/log/trivial.hpp>
 #include "arsenal/byte_array.h"
 
 using namespace std;
@@ -22,7 +22,7 @@ vector<endpoint> local_endpoints()
 {
     boost::asio::udp::socket socket;
     if (!socket.bind())
-        logger::fatal() << "Can't bind local UDP socket";
+        BOOST_LOG_TRIVIAL(fatal) << "Can't bind local UDP socket";
 
     SOCKET sockfd = socket.native_handle();
     assert(sockfd != INVALID_SOCKET);
@@ -43,7 +43,7 @@ vector<endpoint> local_endpoints()
 
         buf.resize(buf.size() * 2);
         if (++retries > 20)
-            logger::fatal() << "Can't find local host's IP addresses: " << WSAGetLastError();
+            BOOST_LOG_TRIVIAL(fatal) << "Can't find local host's IP addresses: " << WSAGetLastError();
     }
 
     // Parse the returned address list.
@@ -76,7 +76,7 @@ vector<endpoint> local_endpoints()
         }
 
         // result.push_back(address);
-        logger::debug() << "Local IP address: " << address;
+        BOOST_LOG_TRIVIAL(debug) << "Local IP address: " << address;
     }
 
     return result;

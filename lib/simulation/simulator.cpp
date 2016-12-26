@@ -6,9 +6,9 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/log/trivial.hpp>
 #include "uia/simulation/simulator.h"
 #include "uia/simulation/sim_timer_engine.h"
-#include "arsenal/logging.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace uia {
@@ -30,7 +30,7 @@ void simulator::run()
     while (!timers_.empty()) {
         run_step();
     }
-    logger::info() << "##### Simulation completed.";
+    BOOST_LOG_TRIVIAL(info) << "##### Simulation completed.";
 }
 
 void simulator::run_actions()
@@ -53,7 +53,7 @@ void simulator::run_step()
     current_clock_ = next->wake_time();
     next->clear_wake_time();
 
-    logger::info() << "##### Simulation step: time now " << current_clock_;
+    BOOST_LOG_TRIVIAL(info) << "##### Simulation step: time now " << current_clock_;
 
     // Run posted mainloop actions
     run_actions();

@@ -6,9 +6,9 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See file LICENSE_1_0.txt or a copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/log/trivial.hpp>
 #include "uia/simulation/sim_connection.h"
 #include "uia/simulation/sim_host.h"
-#include "arsenal/logging.h"
 #include <boost/format.hpp>
 
 using namespace std;
@@ -225,7 +225,7 @@ sim_connection::set_preset(preset p)
         case wifi_54: return set_link_params(wifi54);
         case wifi_600: return set_link_params(wifi600);
     }
-    logger::warning() << "Unknown connection preset " << p;
+    BOOST_LOG_TRIVIAL(warning) << "Unknown connection preset " << p;
 }
 
 std::shared_ptr<sim_host>

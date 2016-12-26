@@ -43,7 +43,7 @@ socket_channel::bind(socket::weak_ptr socket, endpoint const& remote_ep, std::st
         return false;
     }
 
-    logger::debug() << "Bound local channel " << encode::to_base32x(channel_key) << " for " << remote_ep << " to " << sock;
+    BOOST_LOG_TRIVIAL(debug) << "Bound local channel " << encode::to_base32x(channel_key) << " for " << remote_ep << " to " << sock;
 
     socket_ = socket;
     return true;
